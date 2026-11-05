@@ -3,644 +3,355 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anwar Inventory & Ledger System</title>
-    <!-- PWA Manifest & Meta Tags -->
+    <title>Anwar Inventory System</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1e293b">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3144/3144456.png">
-
-    <!-- Service Worker Register Script -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js')
-            .then(reg => console.log('SW Registered!', reg))
-            .catch(err => console.log('SW Error: ', err));
-        });
-      }
-    </script>
-    
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Tesseract.js for Bill OCR -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between font-sans">
 
     <!-- LOGIN SCREEN -->
     <div id="loginSection" class="flex-grow flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-md relative overflow-hidden">
-            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
-            <div class="text-center mb-8">
-                <div class="inline-flex p-3 bg-blue-500/10 text-blue-400 rounded-xl mb-3">
-                    <i data-lucide="shield-check" class="w-8 h-8"></i>
-                </div>
-                <h1 class="text-2xl font-bold text-white tracking-wide">Anwar Inventory</h1>
-                <p class="text-slate-400 text-xs mt-1">Enterprise Management & Billing Portal</p>
+        <div class="bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-md">
+            <div class="text-center mb-6">
+                <h1 class="text-2xl font-bold text-white">Anwar Inventory</h1>
+                <p class="text-slate-400 text-xs mt-1">Secure Management Portal</p>
             </div>
             <form onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1.5">Username</label>
-                    <input type="text" id="loginUser" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition" placeholder="Enter username">
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Username</label>
+                    <input type="text" id="loginUser" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1.5">Password</label>
-                    <input type="password" id="loginPass" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition" placeholder="••••••••">
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Password</label>
+                    <input type="password" id="loginPass" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500">
                 </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-xl transition duration-200 shadow-lg shadow-blue-600/20 text-sm mt-2">
-                    Secure Login
-                </button>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-xl text-sm">Login</button>
             </form>
-            <p class="text-center text-xs text-slate-500 mt-6">Default credentials: admin / 1234</p>
+            <p class="text-center text-xs text-slate-500 mt-4">Default: admin / 1234</p>
         </div>
     </div>
 
-    <!-- MAIN APPLICATION DASHBOARD -->
-    <div id="mainApp" class="hidden flex-grow container mx-auto p-4 max-w-6xl">
-        <!-- Header -->
-        <header class="flex flex-col sm:flex-row justify-between items-center mb-6 bg-slate-900 border border-slate-800 p-4 rounded-2xl gap-4">
-            <div class="flex items-center gap-3">
-                <div class="p-2.5 bg-blue-600/10 text-blue-400 rounded-xl">
-                    <i data-lucide="box" class="w-6 h-6"></i>
-                </div>
-                <div>
-                    <h1 class="text-lg font-bold text-white tracking-wide">Anwar Inventory</h1>
-                    <p class="text-xs text-slate-400">Stock, Billing & Ledger Management System</p>
-                </div>
+    <!-- MAIN APP -->
+    <div id="mainApp" class="hidden flex-grow container mx-auto p-4 max-w-5xl">
+        <header class="flex justify-between items-center mb-6 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+            <div>
+                <h1 class="text-lg font-bold text-white">Anwar Inventory</h1>
+                <p class="text-xs text-slate-400">Dashboard</p>
             </div>
-            <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                <button onclick="openSettingsModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-medium flex items-center gap-1.5 border border-slate-700 transition">
-                    <i data-lucide="key" class="w-4 h-4 text-blue-400"></i> Settings
-                </button>
-                <button onclick="handleLogout()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3.5 py-2 rounded-xl text-xs font-medium flex items-center gap-1.5 border border-red-500/20 transition">
-                    <i data-lucide="log-out" class="w-4 h-4"></i> Logout
-                </button>
+            <div class="flex gap-2">
+                <button onclick="openSettingsModal()" class="bg-slate-800 text-slate-200 px-3 py-2 rounded-xl text-xs">Settings</button>
+                <button onclick="handleLogout()" class="bg-red-500/10 text-red-400 px-3 py-2 rounded-xl text-xs">Logout</button>
             </div>
         </header>
 
         <!-- Navigation Tabs -->
         <div class="flex gap-2 overflow-x-auto mb-6 bg-slate-900 p-1.5 rounded-2xl border border-slate-800">
-            <button id="tabBtn-inventory" onclick="switchTab('inventory')" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-medium bg-blue-600 text-white flex items-center gap-2">
-                <i data-lucide="layers" class="w-4 h-4"></i> Inventory Stock
-            </button>
-            <button id="tabBtn-parties" onclick="switchTab('parties')" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800 flex items-center gap-2">
-                <i data-lucide="users" class="w-4 h-4"></i> Party Ledger
-            </button>
-            <button id="tabBtn-bills" onclick="switchTab('bills')" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800 flex items-center gap-2">
-                <i data-lucide="file-text" class="w-4 h-4"></i> Bills & Invoices
-            </button>
-            <button id="tabBtn-ocr" onclick="switchTab('ocr')" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-800 flex items-center gap-2">
-                <i data-lucide="scan" class="w-4 h-4"></i> Bill OCR Scanner
-            </button>
+            <button onclick="switchTab('inventory')" id="btnInv" class="px-4 py-2 rounded-xl text-xs bg-blue-600 text-white font-medium">Inventory</button>
+            <button onclick="switchTab('parties')" id="btnParty" class="px-4 py-2 rounded-xl text-xs text-slate-400 font-medium">Party Ledger</button>
+            <button onclick="switchTab('bills')" id="btnBill" class="px-4 py-2 rounded-xl text-xs text-slate-400 font-medium">Bills</button>
+            <button onclick="switchTab('ocr')" id="btnOcr" class="px-4 py-2 rounded-xl text-xs text-slate-400 font-medium">OCR Scanner</button>
         </div>
 
-        <!-- TAB 1: INVENTORY MANAGEMENT -->
-        <div id="tabContent-inventory" class="tab-content space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl md:col-span-1">
-                    <h2 id="invFormTitle" class="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-                        <i data-lucide="plus-circle" class="w-4 h-4 text-blue-400"></i> Add Stock Item
-                    </h2>
-                    <form onsubmit="saveInventoryItem(event)" class="space-y-3">
-                        <input type="hidden" id="invItemId">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Item Name</label>
-                            <input type="text" id="invItemName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-blue-500" placeholder="Product Title">
-                        </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">Quantity</label>
-                                <input type="number" id="invItemQty" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-blue-500" placeholder="0">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">Price (PKR)</label>
-                                <input type="number" id="invItemPrice" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-blue-500" placeholder="0.00">
-                            </div>
-                        </div>
-                        <div class="flex gap-2 pt-2">
-                            <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 rounded-xl text-xs">Save Item</button>
-                            <button type="button" onclick="resetInvForm()" class="bg-slate-800 text-slate-300 px-3 py-2 rounded-xl text-xs">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl md:col-span-2">
-                    <h2 class="text-sm font-semibold text-white mb-4 flex justify-between items-center">
-                        <span>Current Stock List</span>
-                        <span id="totalStockCount" class="text-xs text-blue-400">0 Items</span>
-                    </h2>
-                    <div class="overflow-x-auto max-h-[380px] overflow-y-auto">
-                        <table class="w-full text-left text-xs text-slate-300">
-                            <thead class="bg-slate-950 text-slate-400 uppercase tracking-wider sticky top-0">
-                                <tr>
-                                    <th class="p-3">Item Name</th>
-                                    <th class="p-3">Stock Qty</th>
-                                    <th class="p-3">Price</th>
-                                    <th class="p-3 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="inventoryTableBody" class="divide-y divide-slate-800">
-                                <tr><td colspan="4" class="p-4 text-center text-slate-500">No stock items added yet.</td></tr>
-                            </tbody>
-                        </table>
+        <!-- Inventory Tab -->
+        <div id="tab-inventory" class="space-y-4">
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                <h2 id="invTitle" class="text-sm font-semibold text-white mb-3">Add Stock Item</h2>
+                <form onsubmit="saveInv(event)" class="space-y-3">
+                    <input type="hidden" id="invId">
+                    <input type="text" id="invName" placeholder="Item Name" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="number" id="invQty" placeholder="Quantity" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                        <input type="number" id="invPrice" placeholder="Price" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
                     </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-xl text-xs">Save Item</button>
+                </form>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                <h2 class="text-sm font-semibold text-white mb-3">Inventory Stock</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-300">
+                        <thead class="bg-slate-950 text-slate-400">
+                            <tr><th class="p-2">Name</th><th class="p-2">Qty</th><th class="p-2">Price</th><th class="p-2 text-right">Actions</th></tr>
+                        </thead>
+                        <tbody id="invTable" class="divide-y divide-slate-800">
+                            <tr><td colspan="4" class="p-4 text-center text-slate-500">No items found.</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
-        <!-- TAB 2: PARTY LEDGER (KHATA) -->
-        <div id="tabContent-parties" class="tab-content hidden space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl md:col-span-1">
-                    <h2 id="partyFormTitle" class="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-                        <i data-lucide="user-plus" class="w-4 h-4 text-indigo-400"></i> Add/Edit Party
-                    </h2>
-                    <form onsubmit="saveParty(event)" class="space-y-3">
-                        <input type="hidden" id="partyId">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Party Name</label>
-                            <input type="text" id="partyName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-blue-500" placeholder="Customer / Supplier Name">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Contact Number</label>
-                            <input type="text" id="partyPhone" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-blue-500" placeholder="03001234567">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Opening Balance (PKR)</label>
-                            <input type="number" id="partyBalance" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-blue-500" placeholder="0 (+ Receive / - Pay)">
-                        </div>
-                        <div class="flex gap-2 pt-2">
-                            <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-xl text-xs">Save Party</button>
-                            <button type="button" onclick="resetPartyForm()" class="bg-slate-800 text-slate-300 px-3 py-2 rounded-xl text-xs">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl md:col-span-2">
-                    <h2 class="text-sm font-semibold text-white mb-4 flex justify-between items-center">
-                        <span>Party Ledgers (Khata Records)</span>
-                        <span id="totalPartyCount" class="text-xs text-indigo-400">0 Parties</span>
-                    </h2>
-                    <div class="overflow-x-auto max-h-[380px] overflow-y-auto">
-                        <table class="w-full text-left text-xs text-slate-300">
-                            <thead class="bg-slate-950 text-slate-400 uppercase tracking-wider sticky top-0">
-                                <tr>
-                                    <th class="p-3">Party Name</th>
-                                    <th class="p-3">Phone</th>
-                                    <th class="p-3">Balance (PKR)</th>
-                                    <th class="p-3 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="partyTableBody" class="divide-y divide-slate-800">
-                                <tr><td colspan="4" class="p-4 text-center text-slate-500">No parties created yet.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+        <!-- Party Ledger Tab -->
+        <div id="tab-parties" class="hidden space-y-4">
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                <h2 id="partyTitle" class="text-sm font-semibold text-white mb-3">Add Party</h2>
+                <form onsubmit="saveParty(event)" class="space-y-3">
+                    <input type="hidden" id="partyId">
+                    <input type="text" id="partyName" placeholder="Party Name" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <input type="text" id="partyPhone" placeholder="Phone Number" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <input type="number" id="partyBal" placeholder="Balance (+/-)" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-xl text-xs">Save Party</button>
+                </form>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                <h2 class="text-sm font-semibold text-white mb-3">Party Ledgers</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-300">
+                        <thead class="bg-slate-950 text-slate-400">
+                            <tr><th class="p-2">Name</th><th class="p-2">Phone</th><th class="p-2">Balance</th><th class="p-2 text-right">Actions</th></tr>
+                        </thead>
+                        <tbody id="partyTable" class="divide-y divide-slate-800">
+                            <tr><td colspan="4" class="p-4 text-center text-slate-500">No parties found.</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
-        <!-- TAB 3: BILLS & INVOICING -->
-        <div id="tabContent-bills" class="tab-content hidden space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl md:col-span-1">
-                    <h2 id="billFormTitle" class="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-                        <i data-lucide="receipt" class="w-4 h-4 text-emerald-400"></i> Create / Edit Bill
-                    </h2>
-                    <form onsubmit="saveBill(event)" class="space-y-3">
-                        <input type="hidden" id="billId">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Customer / Party Name</label>
-                            <input type="text" id="billCustomer" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-blue-500" placeholder="Customer Name">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Items Summary</label>
-                            <input type="text" id="billDetails" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-blue-500" placeholder="e.g. 2x Cables, 1x Adapter">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Total Amount (PKR)</label>
-                            <input type="number" id="billTotal" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-blue-500" placeholder="0.00">
-                        </div>
-                        <div class="flex gap-2 pt-2">
-                            <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 rounded-xl text-xs">Save Bill</button>
-                            <button type="button" onclick="resetBillForm()" class="bg-slate-800 text-slate-300 px-3 py-2 rounded-xl text-xs">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl md:col-span-2">
-                    <h2 class="text-sm font-semibold text-white mb-4 flex justify-between items-center">
-                        <span>Generated Bills & Invoices History</span>
-                        <span id="totalBillCount" class="text-xs text-emerald-400">0 Bills</span>
-                    </h2>
-                    <div class="overflow-x-auto max-h-[380px] overflow-y-auto">
-                        <table class="w-full text-left text-xs text-slate-300">
-                            <thead class="bg-slate-950 text-slate-400 uppercase tracking-wider sticky top-0">
-                                <tr>
-                                    <th class="p-3">Bill ID</th>
-                                    <th class="p-3">Customer</th>
-                                    <th class="p-3">Items</th>
-                                    <th class="p-3">Total Amount</th>
-                                    <th class="p-3 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="billTableBody" class="divide-y divide-slate-800">
-                                <tr><td colspan="5" class="p-4 text-center text-slate-500">No invoices saved yet.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+        <!-- Bills Tab -->
+        <div id="tab-bills" class="hidden space-y-4">
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                <h2 id="billTitle" class="text-sm font-semibold text-white mb-3">Create Bill</h2>
+                <form onsubmit="saveBill(event)" class="space-y-3">
+                    <input type="hidden" id="billId">
+                    <input type="text" id="billCust" placeholder="Customer Name" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <input type="text" id="billDet" placeholder="Items Summary" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <input type="number" id="billTot" placeholder="Total Amount" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <button type="submit" class="w-full bg-emerald-600 text-white py-2 rounded-xl text-xs">Save Bill</button>
+                </form>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                <h2 class="text-sm font-semibold text-white mb-3">Invoices History</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-300">
+                        <thead class="bg-slate-950 text-slate-400">
+                            <tr><th class="p-2">Customer</th><th class="p-2">Details</th><th class="p-2">Total</th><th class="p-2 text-right">Actions</th></tr>
+                        </thead>
+                        <tbody id="billTable" class="divide-y divide-slate-800">
+                            <tr><td colspan="4" class="p-4 text-center text-slate-500">No bills found.</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
-        <!-- TAB 4: BILL OCR SCANNER -->
-        <div id="tabContent-ocr" class="tab-content hidden space-y-6">
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-2xl mx-auto">
-                <h2 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                    <i data-lucide="cpu" class="w-4 h-4 text-purple-400"></i> Optical Character Recognition (OCR) Scanner
-                </h2>
-                <p class="text-xs text-slate-400 mb-4">Select or capture an image of physical paper bill. System will extract image text automatically using Tesseract.js.</p>
-                <input type="file" id="billImageInput" accept="image/*" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-300 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500 mb-4">
-                <button onclick="processBillOCR()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-medium py-2.5 rounded-xl transition text-xs flex items-center justify-center gap-2 mb-6">
-                    <i data-lucide="scan-line" class="w-4 h-4"></i> Execute OCR Scan
-                </button>
-                <div>
-                    <h3 class="text-xs font-semibold text-slate-400 uppercase mb-2">Scanned Result Text</h3>
-                    <div id="ocrResultBox" class="bg-slate-950 border border-slate-800 p-4 rounded-xl text-xs text-slate-300 min-h-[120px] max-h-60 overflow-y-auto">
-                        No bill scanned yet. Choose an image above and tap scan.
-                    </div>
-                </div>
+        <!-- OCR Tab -->
+        <div id="tab-ocr" class="hidden space-y-4">
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl max-w-xl mx-auto">
+                <h2 class="text-sm font-semibold text-white mb-3">Bill OCR Scanner</h2>
+                <input type="file" id="ocrFile" accept="image/*" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs text-slate-300 mb-3">
+                <button onclick="runOCR()" class="w-full bg-purple-600 text-white py-2 rounded-xl text-xs mb-3">Scan Image</button>
+                <div id="ocrRes" class="bg-slate-950 p-3 rounded-xl text-xs text-slate-300 min-h-[100px]">No scan output yet.</div>
             </div>
         </div>
     </div>
 
-    <!-- SETTINGS / CHANGE PASSWORD MODAL -->
-    <div id="settingsModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-md shadow-2xl">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-base font-bold text-white flex items-center gap-2">
-                    <i data-lucide="lock" class="w-4 h-4 text-blue-400"></i> Change Credentials
-                </h3>
-                <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-            <form onsubmit="updateCredentials(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">New Username</label>
-                    <input type="text" id="newUsername" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">New Password</label>
-                    <input type="password" id="newPassword" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500">
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeSettingsModal()" class="bg-slate-800 text-slate-300 px-4 py-2 rounded-xl text-xs font-medium">Cancel</button>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-medium">Save Credentials</button>
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="hidden fixed inset-0 bg-slate-950/80 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-sm">
+            <h3 class="text-sm font-bold text-white mb-3">Change Credentials</h3>
+            <form onsubmit="updateCreds(event)" class="space-y-3">
+                <input type="text" id="newU" placeholder="New Username" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                <input type="password" id="newP" placeholder="New Password" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="closeSettingsModal()" class="bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl text-xs">Cancel</button>
+                    <button type="submit" class="bg-blue-600 text-white px-3 py-1.5 rounded-xl text-xs">Save</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- FOOTER SECTION -->
-    <footer class="bg-slate-950 text-slate-400 text-center py-4 border-t border-slate-900 text-xs">
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 text-slate-400 text-center py-3 border-t border-slate-900 text-xs">
         Powered by <span class="font-semibold text-blue-400">Usman Qureshi</span> | Contact: 
         <a href="tel:03463997211" class="text-slate-200 hover:underline">03463997211</a>
     </footer>
 
-    <!-- MAIN JAVASCRIPT LOGIC -->
     <script>
-        // Lucide Icons Render
         lucide.createIcons();
 
-        // Navigation Tabs Control
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-600', 'text-white');
-                btn.classList.add('text-slate-400');
+        function switchTab(t) {
+            ['inventory', 'parties', 'bills', 'ocr'].forEach(k => {
+                document.getElementById(`tab-${k}`).classList.add('hidden');
             });
-            document.getElementById(`tabContent-${tabName}`).classList.remove('hidden');
-            const activeBtn = document.getElementById(`tabBtn-${tabName}`);
-            activeBtn.classList.add('bg-blue-600', 'text-white');
-            activeBtn.classList.remove('text-slate-400');
+            ['Inv', 'Party', 'Bill', 'Ocr'].forEach(k => {
+                const b = document.getElementById(`btn${k}`);
+                b.classList.remove('bg-blue-600', 'text-white');
+                b.classList.add('text-slate-400');
+            });
+            document.getElementById(`tab-${t}`).classList.remove('hidden');
+            const activeB = document.getElementById(`btn${t.charAt(0).toUpperCase() + t.slice(1,4)}` + (t==='inventory'?'Inv':t==='parties'?'Party':t==='bills'?'Bill':'Ocr'));
+            if(activeB) { activeB.classList.add('bg-blue-600', 'text-white'); activeB.classList.remove('text-slate-400'); }
         }
 
-        // Authentication Control
-        function getCredentials() {
-            return {
-                user: localStorage.getItem('appUser') || 'admin',
-                pass: localStorage.getItem('appPass') || '1234'
-            };
-        }
+        function getStore(k) { return JSON.parse(localStorage.getItem(k)) || []; }
+        function setStore(k, d) { localStorage.setItem(k, JSON.stringify(d)); }
 
         function handleLogin(e) {
             e.preventDefault();
             const u = document.getElementById('loginUser').value;
             const p = document.getElementById('loginPass').value;
-            const creds = getCredentials();
-
-            if (u === creds.user && p === creds.pass) {
-                document.getElementById('loginSection').classList.add('hidden');
-                document.getElementById('mainApp').classList.remove('hidden');
+            const su = localStorage.getItem('appUser') || 'admin';
+            const sp = localStorage.getItem('appPass') || '1234';
+            if(u === su && p === sp) {
                 localStorage.setItem('isLoggedIn', 'true');
-                loadAllData();
-            } else {
-                alert('Ghalat Username ya Password!');
-            }
+                initApp();
+            } else { alert('Invalid credentials!'); }
         }
 
         function handleLogout() {
             localStorage.removeItem('isLoggedIn');
-            document.getElementById('mainApp').classList.add('hidden');
-            document.getElementById('loginSection').classList.remove('hidden');
+            location.reload();
         }
 
-        function openSettingsModal() {
-            const creds = getCredentials();
-            document.getElementById('newUsername').value = creds.user;
-            document.getElementById('settingsModal').classList.remove('hidden');
-        }
-
-        function closeSettingsModal() {
-            document.getElementById('settingsModal').classList.add('hidden');
-        }
-
-        function updateCredentials(e) {
+        function openSettingsModal() { document.getElementById('settingsModal').classList.remove('hidden'); }
+        function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
+        function updateCreds(e) {
             e.preventDefault();
-            const nu = document.getElementById('newUsername').value;
-            const np = document.getElementById('newPassword').value;
-            localStorage.setItem('appUser', nu);
-            localStorage.setItem('appPass', np);
-            alert('Credentials update ho chukay hain! Naye login credentials se dobara sign-in karein.');
+            localStorage.setItem('appUser', document.getElementById('newU').value);
+            localStorage.setItem('appPass', document.getElementById('newP').value);
+            alert('Updated successfully!');
             closeSettingsModal();
             handleLogout();
         }
 
-        // LocalStorage Helpers
-        function getStorage(key) { return JSON.parse(localStorage.getItem(key)) || []; }
-        function setStorage(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
-
-        // --- 1. INVENTORY SYSTEM ---
-        function saveInventoryItem(e) {
+        // Inventory
+        function saveInv(e) {
             e.preventDefault();
-            const id = document.getElementById('invItemId').value;
-            const name = document.getElementById('invItemName').value;
-            const qty = document.getElementById('invItemQty').value;
-            const price = document.getElementById('invItemPrice').value;
-            let list = getStorage('inventoryList');
-
-            if (id) {
-                list = list.map(item => item.id == id ? { id: Number(id), name, qty, price } : item);
-            } else {
-                list.push({ id: Date.now(), name, qty, price });
-            }
-            setStorage('inventoryList', list);
-            resetInvForm();
-            loadInventory();
+            const id = document.getElementById('invId').value;
+            const name = document.getElementById('invName').value;
+            const qty = document.getElementById('invQty').value;
+            const price = document.getElementById('invPrice').value;
+            let list = getStore('inv');
+            if(id) { list = list.map(i => i.id == id ? {id:Number(id),name,qty,price}:i); }
+            else { list.push({id:Date.now(),name,qty,price}); }
+            setStore('inv', list);
+            e.target.reset();
+            document.getElementById('invId').value = '';
+            loadInv();
         }
-
-        function editInventoryItem(id) {
-            const list = getStorage('inventoryList');
-            const item = list.find(i => i.id == id);
-            if (item) {
-                document.getElementById('invItemId').value = item.id;
-                document.getElementById('invItemName').value = item.name;
-                document.getElementById('invItemQty').value = item.qty;
-                document.getElementById('invItemPrice').value = item.price;
-                document.getElementById('invFormTitle').innerHTML = `<i data-lucide="edit" class="w-4 h-4 text-blue-400"></i> Edit Stock Item`;
-                lucide.createIcons();
+        function editInv(id) {
+            const item = getStore('inv').find(i => i.id == id);
+            if(item) {
+                document.getElementById('invId').value = item.id;
+                document.getElementById('invName').value = item.name;
+                document.getElementById('invQty').value = item.qty;
+                document.getElementById('invPrice').value = item.price;
             }
         }
-
-        function deleteInventoryItem(id) {
-            let list = getStorage('inventoryList');
-            list = list.filter(i => i.id != id);
-            setStorage('inventoryList', list);
-            loadInventory();
+        function delInv(id) {
+            setStore('inv', getStore('inv').filter(i => i.id != id));
+            loadInv();
         }
-
-        function resetInvForm() {
-            document.getElementById('invItemId').value = '';
-            document.getElementById('invItemName').value = '';
-            document.getElementById('invItemQty').value = '';
-            document.getElementById('invItemPrice').value = '';
-            document.getElementById('invFormTitle').innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4 text-blue-400"></i> Add Stock Item`;
-            lucide.createIcons();
-        }
-
-        function loadInventory() {
-            const list = getStorage('inventoryList');
-            const tbody = document.getElementById('inventoryTableBody');
-            document.getElementById('totalStockCount').innerText = `${list.length} Items`;
-            if (list.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">No stock items added yet.</td></tr>`;
-                return;
-            }
-            tbody.innerHTML = '';
+        function loadInv() {
+            const list = getStore('inv');
+            const tb = document.getElementById('invTable');
+            if(list.length === 0) { tb.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">No items found.</td></tr>`; return; }
+            tb.innerHTML = '';
             list.forEach(i => {
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-950/50">
-                        <td class="p-3 font-medium text-white">${i.name}</td>
-                        <td class="p-3">${i.qty}</td>
-                        <td class="p-3">PKR ${i.price}</td>
-                        <td class="p-3 text-right space-x-2">
-                            <button onclick="editInventoryItem(${i.id})" class="text-blue-400 hover:text-blue-300">Edit</button>
-                            <button onclick="deleteInventoryItem(${i.id})" class="text-red-400 hover:text-red-300">Delete</button>
-                        </td>
-                    </tr>
-                `;
+                tb.innerHTML += `<tr class="hover:bg-slate-950/50"><td class="p-2">${i.name}</td><td class="p-2">${i.qty}</td><td class="p-2">${i.price}</td><td class="p-2 text-right"><button onclick="editInv(${i.id})" class="text-blue-400 mr-2">Edit</button><button onclick="delInv(${i.id})" class="text-red-400">Del</button></td></tr>`;
             });
         }
 
-        // --- 2. PARTY LEDGER SYSTEM ---
+        // Parties
         function saveParty(e) {
             e.preventDefault();
             const id = document.getElementById('partyId').value;
             const name = document.getElementById('partyName').value;
             const phone = document.getElementById('partyPhone').value;
-            const balance = document.getElementById('partyBalance').value;
-            let list = getStorage('partyList');
-
-            if (id) {
-                list = list.map(p => p.id == id ? { id: Number(id), name, phone, balance } : p);
-            } else {
-                list.push({ id: Date.now(), name, phone, balance });
-            }
-            setStorage('partyList', list);
-            resetPartyForm();
-            loadParties();
-        }
-
-        function editParty(id) {
-            const list = getStorage('partyList');
-            const party = list.find(p => p.id == id);
-            if (party) {
-                document.getElementById('partyId').value = party.id;
-                document.getElementById('partyName').value = party.name;
-                document.getElementById('partyPhone').value = party.phone;
-                document.getElementById('partyBalance').value = party.balance;
-                document.getElementById('partyFormTitle').innerHTML = `<i data-lucide="edit" class="w-4 h-4 text-indigo-400"></i> Edit Party Record`;
-                lucide.createIcons();
-            }
-        }
-
-        function deleteParty(id) {
-            let list = getStorage('partyList');
-            list = list.filter(p => p.id != id);
-            setStorage('partyList', list);
-            loadParties();
-        }
-
-        function resetPartyForm() {
+            const balance = document.getElementById('partyBal').value;
+            let list = getStore('parties');
+            if(id) { list = list.map(p => p.id == id ? {id:Number(id),name,phone,balance}:p); }
+            else { list.push({id:Date.now(),name,phone,balance}); }
+            setStore('parties', list);
+            e.target.reset();
             document.getElementById('partyId').value = '';
-            document.getElementById('partyName').value = '';
-            document.getElementById('partyPhone').value = '';
-            document.getElementById('partyBalance').value = '';
-            document.getElementById('partyFormTitle').innerHTML = `<i data-lucide="user-plus" class="w-4 h-4 text-indigo-400"></i> Add/Edit Party`;
-            lucide.createIcons();
+            loadParties();
         }
-
-        function loadParties() {
-            const list = getStorage('partyList');
-            const tbody = document.getElementById('partyTableBody');
-            document.getElementById('totalPartyCount').innerText = `${list.length} Parties`;
-            if (list.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">No parties created yet.</td></tr>`;
-                return;
+        function editParty(id) {
+            const p = getStore('parties').find(x => x.id == id);
+            if(p) {
+                document.getElementById('partyId').value = p.id;
+                document.getElementById('partyName').value = p.name;
+                document.getElementById('partyPhone').value = p.phone;
+                document.getElementById('partyBal').value = p.balance;
             }
-            tbody.innerHTML = '';
+        }
+        function delParty(id) {
+            setStore('parties', getStore('parties').filter(p => p.id != id));
+            loadParties();
+        }
+        function loadParties() {
+            const list = getStore('parties');
+            const tb = document.getElementById('partyTable');
+            if(list.length === 0) { tb.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">No parties found.</td></tr>`; return; }
+            tb.innerHTML = '';
             list.forEach(p => {
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-950/50">
-                        <td class="p-3 font-medium text-white">${p.name}</td>
-                        <td class="p-3">${p.phone || '-'}</td>
-                        <td class="p-3 font-semibold ${p.balance >= 0 ? 'text-emerald-400' : 'text-red-400'}">PKR ${p.balance}</td>
-                        <td class="p-3 text-right space-x-2">
-                            <button onclick="editParty(${p.id})" class="text-indigo-400 hover:text-indigo-300">Edit</button>
-                            <button onclick="deleteParty(${p.id})" class="text-red-400 hover:text-red-300">Delete</button>
-                        </td>
-                    </tr>
-                `;
+                tb.innerHTML += `<tr class="hover:bg-slate-950/50"><td class="p-2">${p.name}</td><td class="p-2">${p.phone||'-'}</td><td class="p-2">${p.balance}</td><td class="p-2 text-right"><button onclick="editParty(${p.id})" class="text-blue-400 mr-2">Edit</button><button onclick="delParty(${p.id})" class="text-red-400">Del</button></td></tr>`;
             });
         }
 
-        // --- 3. BILLING & INVOICE SYSTEM ---
+        // Bills
         function saveBill(e) {
             e.preventDefault();
             const id = document.getElementById('billId').value;
-            const customer = document.getElementById('billCustomer').value;
-            const details = document.getElementById('billDetails').value;
-            const total = document.getElementById('billTotal').value;
-            let list = getStorage('billList');
-
-            if (id) {
-                list = list.map(b => b.id == id ? { id: Number(id), customer, details, total } : b);
-            } else {
-                list.push({ id: Date.now(), customer, details, total });
-            }
-            setStorage('billList', list);
-            resetBillForm();
-            loadBills();
-        }
-
-        function editBill(id) {
-            const list = getStorage('billList');
-            const bill = list.find(b => b.id == id);
-            if (bill) {
-                document.getElementById('billId').value = bill.id;
-                document.getElementById('billCustomer').value = bill.customer;
-                document.getElementById('billDetails').value = bill.details;
-                document.getElementById('billTotal').value = bill.total;
-                document.getElementById('billFormTitle').innerHTML = `<i data-lucide="edit" class="w-4 h-4 text-emerald-400"></i> Edit Invoice Record`;
-                lucide.createIcons();
-            }
-        }
-
-        function deleteBill(id) {
-            let list = getStorage('billList');
-            list = list.filter(b => b.id != id);
-            setStorage('billList', list);
-            loadBills();
-        }
-
-        function resetBillForm() {
+            const customer = document.getElementById('billCust').value;
+            const details = document.getElementById('billDet').value;
+            const total = document.getElementById('billTot').value;
+            let list = getStore('bills');
+            if(id) { list = list.map(b => b.id == id ? {id:Number(id),customer,details,total}:b); }
+            else { list.push({id:Date.now(),customer,details,total}); }
+            setStore('bills', list);
+            e.target.reset();
             document.getElementById('billId').value = '';
-            document.getElementById('billCustomer').value = '';
-            document.getElementById('billDetails').value = '';
-            document.getElementById('billTotal').value = '';
-            document.getElementById('billFormTitle').innerHTML = `<i data-lucide="receipt" class="w-4 h-4 text-emerald-400"></i> Create / Edit Bill`;
-            lucide.createIcons();
+            loadBills();
         }
-
-        function loadBills() {
-            const list = getStorage('billList');
-            const tbody = document.getElementById('billTableBody');
-            document.getElementById('totalBillCount').innerText = `${list.length} Bills`;
-            if (list.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">No invoices saved yet.</td></tr>`;
-                return;
+        function editBill(id) {
+            const b = getStore('bills').find(x => x.id == id);
+            if(b) {
+                document.getElementById('billId').value = b.id;
+                document.getElementById('billCust').value = b.customer;
+                document.getElementById('billDet').value = b.details;
+                document.getElementById('billTot').value = b.total;
             }
-            tbody.innerHTML = '';
+        }
+        function delBill(id) {
+            setStore('bills', getStore('bills').filter(b => b.id != id));
+            loadBills();
+        }
+        function loadBills() {
+            const list = getStore('bills');
+            const tb = document.getElementById('billTable');
+            if(list.length === 0) { tb.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">No bills found.</td></tr>`; return; }
+            tb.innerHTML = '';
             list.forEach(b => {
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-950/50">
-                        <td class="p-3 font-mono text-slate-400">#${b.id.toString().slice(-4)}</td>
-                        <td class="p-3 font-medium text-white">${b.customer}</td>
-                        <td class="p-3 text-slate-300">${b.details}</td>
-                        <td class="p-3 font-semibold text-emerald-400">PKR ${b.total}</td>
-                        <td class="p-3 text-right space-x-2">
-                            <button onclick="editBill(${b.id})" class="text-emerald-400 hover:text-emerald-300">Edit</button>
-                            <button onclick="deleteBill(${b.id})" class="text-red-400 hover:text-red-300">Delete</button>
-                        </td>
-                    </tr>
-                `;
+                tb.innerHTML += `<tr class="hover:bg-slate-950/50"><td class="p-2">${b.customer}</td><td class="p-2">${b.details}</td><td class="p-2">${b.total}</td><td class="p-2 text-right"><button onclick="editBill(${b.id})" class="text-blue-400 mr-2">Edit</button><button onclick="delBill(${b.id})" class="text-red-400">Del</button></td></tr>`;
             });
         }
 
-        // --- 4. TESSERACT OCR SYSTEM ---
-        async function processBillOCR() {
-            const fileInput = document.getElementById('billImageInput');
-            const resultBox = document.getElementById('ocrResultBox');
-
-            if (fileInput.files.length === 0) {
-                alert('Pehle koi bill image choose karein!');
-                return;
-            }
-
-            resultBox.innerText = 'Scanning bill image using OCR... Please wait...';
+        async function runOCR() {
+            const f = document.getElementById('ocrFile');
+            const res = document.getElementById('ocrRes');
+            if(f.files.length === 0) { alert('Select an image!'); return; }
+            res.innerText = 'Scanning...';
             try {
-                const { data: { text } } = await Tesseract.recognize(
-                    fileInput.files[0],
-                    'eng',
-                    { logger: m => console.log(m) }
-                );
-                resultBox.innerText = text ? text : 'No readable text detected from image.';
-            } catch (err) {
-                console.error(err);
-                resultBox.innerText = 'Error processing image scan.';
-            }
+                const { data: { text } } = await Tesseract.recognize(f.files[0], 'eng');
+                res.innerText = text || 'No text found.';
+            } catch(err) { res.innerText = 'Scan error.'; }
         }
 
-        // Load All Active App Data
-        function loadAllData() {
-            loadInventory();
-            loadParties();
-            loadBills();
+        function initApp() {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            loadInv(); loadParties(); loadBills();
         }
 
-        // On App Launch Session Verification
         window.onload = function() {
-            if (localStorage.getItem('isLoggedIn') === 'true') {
-                document.getElementById('loginSection').classList.add('hidden');
-                document.getElementById('mainApp').classList.remove('hidden');
-                loadAllData();
-            }
-        };
+            if(localStorage.getItem('isLoggedIn') === 'true') { initApp(); }
+        }
     </script>
 </body>
 </html>
