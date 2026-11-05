@@ -82,7 +82,7 @@
             </div>
         </header>
 
-        <!-- Dashboard Tabs / Workspace -->
+        <!-- Dashboard Stats Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
                 <div class="flex justify-between items-center mb-2">
@@ -106,16 +106,79 @@
                     <i data-lucide="activity" class="w-5 h-5 text-emerald-400"></i>
                 </div>
                 <h3 class="text-2xl font-bold text-emerald-400">Secure</h3>
-                <p class="text-xs text-slate-500 mt-1">LocalStorage Active</p>
+                <p class="text-xs text-slate-500 mt-1">OCR & LocalStorage Ready</p>
             </div>
         </div>
 
-        <!-- Professional Workspace Area -->
+        <!-- Inventory & OCR Bill Scanner Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Add Inventory Form -->
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+                <h2 class="text-base font-semibold text-white mb-4 flex items-center gap-2">
+                    <i data-lucide="plus-circle" class="w-4 h-4 text-blue-400"></i> Add Stock Item
+                </h2>
+                <form id="inventoryForm" onsubmit="addInventoryItem(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Item Name</label>
+                        <input type="text" id="itemName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500" placeholder="Product name">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Quantity</label>
+                            <input type="number" id="itemQty" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500" placeholder="0">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Price (PKR)</label>
+                            <input type="number" id="itemPrice" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500" placeholder="0.00">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-2.5 rounded-xl transition text-sm">Add to Inventory</button>
+                </form>
+            </div>
+
+            <!-- OCR Bill Scanner Section -->
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between">
+                <div>
+                    <h2 class="text-base font-semibold text-white mb-4 flex items-center gap-2">
+                        <i data-lucide="scan" class="w-4 h-4 text-indigo-400"></i> Bill OCR Scanner
+                    </h2>
+                    <p class="text-xs text-slate-400 mb-4">Upload or capture a bill image to extract text using Tesseract.js OCR automatically.</p>
+                    <input type="file" id="billImageInput" accept="image/*" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 mb-4">
+                </div>
+                <button onclick="processBillOCR()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-xl transition text-sm flex items-center justify-center gap-2">
+                    <i data-lucide="cpu" class="w-4 h-4"></i> Scan Bill Image
+                </button>
+            </div>
+        </div>
+
+        <!-- OCR Result & Inventory List Display -->
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl mb-6">
+            <h2 class="text-base font-semibold text-white mb-3">Scan Output / Extracted Text</h2>
+            <div id="ocrResultBox" class="bg-slate-950 border border-slate-800 p-4 rounded-xl text-xs text-slate-300 min-h-[80px] max-h-40 overflow-y-auto">
+                No bill scanned yet. Upload an image above and click scan.
+            </div>
+        </div>
+
+        <!-- Stock Table -->
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl">
-            <h2 class="text-base font-semibold text-white mb-4 flex items-center gap-2">
-                <i data-lucide="sliders" class="w-4 h-4 text-blue-400"></i> Professional Dashboard Workspace
-            </h2>
-            <p class="text-sm text-slate-400 mb-4">Aapka inventory system mukammal mehfooz aur professional mode me chal raha hai. Aap upar diye gaye options se account settings manage kar sakte hain.</p>
+            <h2 class="text-base font-semibold text-white mb-4">Current Inventory Stock</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-300">
+                    <thead class="bg-slate-950 text-slate-400 uppercase tracking-wider">
+                        <tr>
+                            <th class="p-3 rounded-l-xl">Item Name</th>
+                            <th class="p-3">Quantity</th>
+                            <th class="p-3">Price</th>
+                            <th class="p-3 rounded-r-xl text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryTableBody" class="divide-y divide-slate-800">
+                        <tr>
+                            <td colspan="4" class="p-4 text-center text-slate-500">No inventory items added yet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -176,6 +239,7 @@
                 document.getElementById('loginSection').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
                 localStorage.setItem('isLoggedIn', 'true');
+                loadInventory();
             } else {
                 alert('Ghalat Username ya Password! Dobara koshish karein.');
             }
@@ -213,14 +277,92 @@
             handleLogout();
         }
 
+        // Inventory LocalStorage Logic
+        function getInventory() {
+            return JSON.parse(localStorage.getItem('inventoryList')) || [];
+        }
+
+        function saveInventory(list) {
+            localStorage.setItem('inventoryList', JSON.stringify(list));
+            loadInventory();
+        }
+
+        function addInventoryItem(e) {
+            e.preventDefault();
+            const name = document.getElementById('itemName').value;
+            const qty = document.getElementById('itemQty').value;
+            const price = document.getElementById('itemPrice').value;
+
+            const list = getInventory();
+            list.push({ id: Date.now(), name, qty, price });
+            saveInventory(list);
+
+            document.getElementById('inventoryForm').reset();
+        }
+
+        function deleteItem(id) {
+            let list = getInventory();
+            list = list.filter(item => item.id !== id);
+            saveInventory(list);
+        }
+
+        function loadInventory() {
+            const list = getInventory();
+            const tbody = document.getElementById('inventoryTableBody');
+            document.getElementById('statItems').innerText = `${list.length} Items`;
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500">No inventory items added yet.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            list.forEach(item => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-950/50">
+                        <td class="p-3 font-medium text-white">${item.name}</td>
+                        <td class="p-3">${item.qty}</td>
+                        <td class="p-3">PKR ${item.price}</td>
+                        <td class="p-3 text-right">
+                            <button onclick="deleteItem(${item.id})" class="text-red-400 hover:text-red-300 font-medium">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Tesseract.js Bill OCR Scanner Logic
+        async function processBillOCR() {
+            const fileInput = document.getElementById('billImageInput');
+            const resultBox = document.getElementById('ocrResultBox');
+
+            if (fileInput.files.length === 0) {
+                alert('Pehle koi bill ki image select karein!');
+                return;
+            }
+
+            resultBox.innerText = 'Scanning bill image using OCR... Please wait...';
+            try {
+                const { data: { text } } = await Tesseract.recognize(
+                    fileInput.files[0],
+                    'eng',
+                    { logger: m => console.log(m) }
+                );
+                resultBox.innerText = text ? text : 'Koi text nahi mila image se.';
+            } catch (err) {
+                console.error(err);
+                resultBox.innerText = 'OCR Scan karne mein error aa gaya.';
+            }
+        }
+
         // Check Login Session on Page Load
         window.onload = function() {
             if (localStorage.getItem('isLoggedIn') === 'true') {
                 document.getElementById('loginSection').classList.add('hidden');
                 document.getElementById('mainApp').classList.remove('hidden');
+                loadInventory();
             }
         };
     </script>
 </body>
 </html>
-
